@@ -191,52 +191,80 @@
     }
 
     /* ═══════════════════════════════════════
-       Tab 导航（类别）
+       类别区块
     ═══════════════════════════════════════ */
-    .tabs-wrapper {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
+    .category-section {
+      margin-bottom: 36px;
     }
 
-    .tab-btn {
-      display: inline-flex;
+    .category-banner {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      border-radius: 50px;
-      border: 2px solid var(--paper-3);
-      background: #fff;
-      color: var(--ink-3);
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: var(--transition);
-      box-shadow: var(--shadow-sm);
-    }
-    .tab-btn:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
-    }
-    .tab-btn.active {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      border-color: transparent;
+      gap: 14px;
+      padding: 14px 20px;
+      border-radius: var(--radius);
+      margin-bottom: 18px;
       color: #fff;
-      box-shadow: 0 6px 20px rgba(192,57,43,.35);
+      position: relative;
+      overflow: hidden;
     }
-    .tab-count {
-      background: rgba(255,255,255,.3);
+    /* 各类别配色（循环） */
+    .cat-color-0 { background: linear-gradient(135deg,#e74c3c 0%,#9b2335 100%); }
+    .cat-color-1 { background: linear-gradient(135deg,#2471a3 0%,#1a4f72 100%); }
+    .cat-color-2 { background: linear-gradient(135deg,#1e8449 0%,#145a32 100%); }
+    .cat-color-3 { background: linear-gradient(135deg,#7d3c98 0%,#512e5f 100%); }
+    .cat-color-4 { background: linear-gradient(135deg,#ca6f1e 0%,#935116 100%); }
+    .cat-color-5 { background: linear-gradient(135deg,#148f77 0%,#0e6655 100%); }
+    .cat-color-6 { background: linear-gradient(135deg,#2e86c1 0%,#1a5276 100%); }
+    .cat-color-7 { background: linear-gradient(135deg,#d4ac0d 0%,#9a7d0a 100%); }
+
+    .category-banner::after {
+      content: '';
+      position: absolute;
+      right: -20px; top: -20px;
+      width: 100px; height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+    }
+    .category-banner::before {
+      content: '';
+      position: absolute;
+      right: 40px; bottom: -30px;
+      width: 70px; height: 70px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.05);
+    }
+
+    .cat-icon {
+      width: 42px; height: 42px;
+      background: rgba(255,255,255,.2);
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      backdrop-filter: blur(4px);
+    }
+    .cat-info { flex: 1; }
+    .cat-name {
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: .02em;
+    }
+    .cat-meta {
+      font-size: 13px;
+      opacity: .85;
+      margin-top: 2px;
+    }
+    .cat-total-badge {
+      background: rgba(255,255,255,.25);
+      backdrop-filter: blur(4px);
       border-radius: 50px;
-      padding: 1px 8px;
-      font-size: 12px;
-    }
-    .tab-btn:not(.active) .tab-count {
-      background: var(--paper-2);
-      color: var(--ink-3);
+      padding: 5px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
     }
 
     /* ═══════════════════════════════════════
@@ -885,9 +913,6 @@
   </div>
   <div class="section-divider"></div>
 
-  <!-- 类别 Tab -->
-  <div class="tabs-wrapper" id="categoryTabs"></div>
-
   <!-- 小组卡片区 -->
   <div id="questionsContent">
     <div class="loading-state">
@@ -1030,7 +1055,7 @@ let categoryMap      = {};
 let activeCategory   = '';
 let refreshTimer     = null;
 let refreshCountdown = CONFIG.auto_refresh / 1000;
-let autoRefreshOn    = true;   // 自动刷新开关
+let autoRefreshOn    = true;
 
 let selectedFiles    = [];
 let githubImageFiles = [];
@@ -1172,35 +1197,42 @@ function buildCategoryMap(submissions) {
   return map;
 }
 
-function renderTabs(map, active) {
-  const wrapper = document.getElementById('categoryTabs');
-  wrapper.innerHTML = '';
-  Object.keys(map).forEach(cat => {
-    const groups = map[cat];
-    const total  = groups.reduce((s, g) => s + g.questions.length, 0);
-    const btn    = document.createElement('button');
-    btn.className = 'tab-btn' + (cat === active ? ' active' : '');
-    btn.innerHTML = `${cat}<span class="tab-count">${total}问</span>`;
-    btn.onclick = () => {
-      activeCategory = cat;
-      renderTabs(map, cat);
-      renderGroups(map[cat]);
-    };
-    wrapper.appendChild(btn);
-  });
-}
+// 类别图标
+const CAT_ICONS = ['📚','🔬','🎨','🌍','🎵','🏛️','🌿','💡','🔭','✏️'];
 
-function renderGroups(groups) {
+function renderAllCategories(map) {
   const container = document.getElementById('questionsContent');
-  if (!groups || !groups.length) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><p>该类别暂无问题</p></div>`;
+  const cats = Object.keys(map);
+
+  if (!cats.length) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📭</div><p>暂无数据，等待学生提交问题</p></div>`;
     return;
   }
-  container.innerHTML = `<div class="groups-grid">${groups.map(renderGroupCard).join('')}</div>`;
+
+  container.innerHTML = cats.map((cat, ci) => {
+    const groups    = map[cat];
+    const totalQ    = groups.reduce((s, g) => s + g.questions.length, 0);
+    const colorCls  = `cat-color-${ci % 8}`;
+    const catIcon   = CAT_ICONS[ci % CAT_ICONS.length];
+    const groupsHtml = groups.map((g, gi) => renderGroupCard(g, gi, ci)).join('');
+
+    return `
+      <div class="category-section">
+        <div class="category-banner ${colorCls}">
+          <div class="cat-icon">${catIcon}</div>
+          <div class="cat-info">
+            <div class="cat-name">${escapeHtml(cat)}</div>
+            <div class="cat-meta">${groups.length} 个小组 · ${totalQ} 个问题</div>
+          </div>
+          <span class="cat-total-badge">${totalQ} 问</span>
+        </div>
+        <div class="groups-grid">${groupsHtml}</div>
+      </div>`;
+  }).join('');
 }
 
-function renderGroupCard(group, i) {
-  const theme = CONFIG.themes[i % CONFIG.themes.length];
+function renderGroupCard(group, i, catIdx) {
+  const theme = CONFIG.themes[(catIdx * 3 + i) % CONFIG.themes.length];
   const icon  = CONFIG.icons[i % CONFIG.icons.length];
   const qs    = group.questions.map((q, qi) =>
     `<div class="question-item">
@@ -1236,23 +1268,14 @@ async function refreshQuestions() {
     allSubmissions = data.submissions || [];
     categoryMap    = buildCategoryMap(allSubmissions);
 
-    const cats   = Object.keys(categoryMap);
-    const total  = allSubmissions.length;
+    const cats  = Object.keys(categoryMap);
+    const total = allSubmissions.length;
+    const totalQ = Object.values(categoryMap).reduce((s, gs) => s + gs.reduce((a, g) => a + g.questions.length, 0), 0);
 
     document.getElementById('questionsSubtitle').textContent =
-      `共 ${total} 条提交 · ${cats.length} 个类别`;
+      `共 ${total} 条提交 · ${cats.length} 个类别 · ${totalQ} 个问题`;
 
-    if (!activeCategory || !categoryMap[activeCategory]) {
-      activeCategory = cats[0] || '';
-    }
-
-    renderTabs(categoryMap, activeCategory);
-    renderGroups(activeCategory ? categoryMap[activeCategory] : []);
-
-    if (!cats.length) {
-      document.getElementById('questionsContent').innerHTML =
-        `<div class="empty-state"><div class="empty-icon">📭</div><p>暂无数据，等待学生提交问题</p></div>`;
-    }
+    renderAllCategories(categoryMap);
 
     startCountdown();
     toast('问题数据已更新', 'success');
