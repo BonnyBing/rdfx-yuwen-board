@@ -191,22 +191,32 @@
     }
 
     /* ═══════════════════════════════════════
-       类别区块
+       类别区块（每个标题独立区域）
     ═══════════════════════════════════════ */
     .category-section {
-      margin-bottom: 36px;
+      margin-bottom: 40px;
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(0,0,0,.06);
+      overflow: hidden;
     }
 
     .category-banner {
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 14px 20px;
-      border-radius: var(--radius);
-      margin-bottom: 18px;
+      padding: 16px 22px;
+      border-radius: 0;
+      margin-bottom: 0;
       color: #fff;
       position: relative;
       overflow: hidden;
+    }
+
+    .category-body {
+      padding: 20px 22px 22px;
+      background: var(--paper);
     }
     /* 各类别配色（循环） */
     .cat-color-0 { background: linear-gradient(135deg,#e74c3c 0%,#9b2335 100%); }
@@ -272,8 +282,8 @@
     ═══════════════════════════════════════ */
     .groups-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
     }
 
     .group-card {
@@ -398,45 +408,81 @@
     .section-gap { height: 48px; }
 
     /* ═══════════════════════════════════════
-       图片上传区域
+       图片上传卡片（➕）
     ═══════════════════════════════════════ */
-    .upload-zone {
+    .upload-card {
+      position: relative;
+      border-radius: var(--radius);
+      background: var(--paper-2);
+      box-shadow: var(--shadow-sm);
       border: 2px dashed var(--paper-3);
-      border-radius: var(--radius-lg);
-      background: #fff;
-      padding: 36px 24px;
-      text-align: center;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
       transition: var(--transition);
-      position: relative;
+      animation: fadeInUp .4s ease both;
+      overflow: hidden;
     }
-    .upload-zone:hover, .upload-zone.drag-over {
+    .upload-card:hover, .upload-card.drag-over {
       border-color: var(--blue);
       background: #f0f7ff;
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
     }
-    .upload-zone input[type="file"] {
+    .upload-card input[type="file"] {
       position: absolute;
       inset: 0;
       opacity: 0;
       cursor: pointer;
       width: 100%;
       height: 100%;
+      z-index: 2;
     }
-    .upload-icon { font-size: 48px; margin-bottom: 12px; }
-    .upload-title { font-size: 17px; font-weight: 600; color: var(--ink-2); margin-bottom: 6px; }
-    .upload-hint  { font-size: 13px; color: var(--ink-3); }
+    .upload-card-icon {
+      width: 48px; height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--blue-light), var(--blue));
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 28px;
+      font-weight: 300;
+      line-height: 1;
+      box-shadow: 0 4px 14px rgba(36,113,163,.3);
+      transition: transform .25s ease;
+      pointer-events: none;
+    }
+    .upload-card:hover .upload-card-icon { transform: scale(1.08); }
 
-    /* 上传表单 */
-    .upload-form {
-      background: #fff;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
-      padding: 20px;
-      margin-top: 16px;
+    /* 上传表单—浮动弹出层 */
+    .upload-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.5);
+      z-index: 1400;
       display: none;
-      animation: fadeInUp .3s ease;
+      place-items: center;
     }
-    .upload-form.visible { display: block; }
+    .upload-modal.open { display: grid; }
+    .upload-modal-box {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 28px 26px 24px;
+      max-width: 520px;
+      width: 92%;
+      box-shadow: var(--shadow-lg);
+      animation: fadeInUp .25s ease;
+    }
+    .upload-modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
     .form-row {
       display: flex;
@@ -864,13 +910,17 @@
     /* ═══════════════════════════════════════
        响应式
     ═══════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .groups-grid { grid-template-columns: 1fr; }
+    }
+
     @media (max-width: 640px) {
       .header-inner { height: 56px; }
       .logo-main { font-size: 15px; }
       .logo-sub  { display: none; }
-      .groups-grid { grid-template-columns: 1fr; }
       .images-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
       .refresh-timer { display: none; }
+      .category-body { padding: 16px; }
     }
   </style>
 </head>
@@ -934,39 +984,34 @@
   </div>
   <div class="section-divider" style="background:linear-gradient(90deg,var(--blue),transparent)"></div>
 
-  <!-- 上传区 -->
-  <div class="upload-zone" id="uploadZone">
-    <input type="file" id="fileInput" accept="image/*" multiple />
-    <div class="upload-icon">📷</div>
-    <div class="upload-title">点击或拖拽图片到此处上传</div>
-    <div class="upload-hint">支持 JPG、PNG、GIF、WebP 格式，可同时上传多张</div>
-  </div>
-
-  <!-- 上传表单（选择文件后显示） -->
-  <div class="upload-form" id="uploadForm">
-    <div class="upload-preview-list" id="previewList"></div>
-    <div class="form-row">
-      <div class="form-group">
-        <label class="form-label" for="imgCategory">📁 存储分类（可选）</label>
-        <input class="form-input" id="imgCategory" type="text"
-               placeholder="例如：2026-06-22 或 板书" />
+  <!-- 上传表单弹出层 -->
+  <div class="upload-modal" id="uploadModal" onclick="if(event.target===this)cancelUpload()">
+    <div class="upload-modal-box">
+      <div class="upload-modal-title">📷 上传图片</div>
+      <div class="upload-preview-list" id="previewList"></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="imgCategory">📁 存储分类（可选）</label>
+          <input class="form-input" id="imgCategory" type="text"
+                 placeholder="例如：2026-06-22 或 板书" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="imgCustomName">✏️ 文件名前缀（可选）</label>
+          <input class="form-input" id="imgCustomName" type="text"
+                 placeholder="例如：课堂一（留空自动命名）" />
+        </div>
+        <div style="display:flex;gap:8px;align-items:flex-end;padding-bottom:1px;">
+          <button class="btn-primary" id="uploadBtn" onclick="startUpload()">
+            ☁️ 上传到云端
+          </button>
+          <button class="btn-cancel" onclick="cancelUpload()">取消</button>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="imgCustomName">✏️ 文件名前缀（可选）</label>
-        <input class="form-input" id="imgCustomName" type="text"
-               placeholder="例如：课堂一（留空自动命名）" />
+      <div class="upload-progress" id="uploadProgress">
+        <div class="upload-progress-bar" id="uploadProgressBar"></div>
       </div>
-      <div style="display:flex;gap:8px;align-items:flex-end;padding-bottom:1px;">
-        <button class="btn-primary" id="uploadBtn" onclick="startUpload()">
-          ☁️ 上传到云端
-        </button>
-        <button class="btn-cancel" onclick="cancelUpload()">取消</button>
-      </div>
+      <div id="uploadStatus" style="font-size:13px;color:var(--ink-3);margin-top:8px;"></div>
     </div>
-    <div class="upload-progress" id="uploadProgress">
-      <div class="upload-progress-bar" id="uploadProgressBar"></div>
-    </div>
-    <div id="uploadStatus" style="font-size:13px;color:var(--ink-3);margin-top:8px;"></div>
   </div>
 
   <!-- 图片工具栏 -->
@@ -1079,12 +1124,19 @@ function githubAPI(path, method = 'GET', body = null) {
     'Accept'       : 'application/vnd.github.v3+json',
     'Authorization': `token ${token}`,
   };
-  return fetch(`https://api.github.com/repos/${CONFIG.github_owner}/${CONFIG.github_repo}/${path}`, {
+  const apiPath = path.startsWith('contents/')
+    ? 'contents/' + path.slice('contents/'.length).split('/').map(encodeURIComponent).join('/')
+    : path;
+  return fetch(`https://api.github.com/repos/${CONFIG.github_owner}/${CONFIG.github_repo}/${apiPath}`, {
     method,
     headers,
     body: body ? JSON.stringify(body) : null,
-  }).then(r => {
-    if (!r.ok && r.status !== 404) return r.json().then(d => Promise.reject(d.message || r.statusText));
+  }).then(async r => {
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      if (r.status === 404) return d;
+      return Promise.reject(d.message || r.statusText);
+    }
     return r.status === 204 ? null : r.json();
   });
 }
@@ -1226,7 +1278,9 @@ function renderAllCategories(map) {
           </div>
           <span class="cat-total-badge">${totalQ} 问</span>
         </div>
-        <div class="groups-grid">${groupsHtml}</div>
+        <div class="category-body">
+          <div class="groups-grid">${groupsHtml}</div>
+        </div>
       </div>`;
   }).join('');
 }
@@ -1299,7 +1353,7 @@ function handleFileSelect(e) {
 }
 
 function showUploadForm() {
-  const form    = document.getElementById('uploadForm');
+  const modal   = document.getElementById('uploadModal');
   const preview = document.getElementById('previewList');
   preview.innerHTML = '';
   selectedFiles.forEach((item, i) => {
@@ -1309,7 +1363,7 @@ function showUploadForm() {
     div.innerHTML = `<img src="${url}" alt="预览" /><button class="remove-preview" onclick="removePreviewFile(${i})">✕</button>`;
     preview.appendChild(div);
   });
-  form.classList.add('visible');
+  modal.classList.add('open');
 }
 
 function removePreviewFile(i) {
@@ -1323,8 +1377,9 @@ function removePreviewFile(i) {
 
 function cancelUpload() {
   selectedFiles = [];
-  document.getElementById('uploadForm').classList.remove('visible');
-  document.getElementById('fileInput').value = '';
+  document.getElementById('uploadModal').classList.remove('open');
+  const fileInput = document.getElementById('fileInput');
+  if (fileInput) fileInput.value = '';
   document.getElementById('imgCategory').value = '';
   document.getElementById('imgCustomName').value = '';
   document.getElementById('uploadStatus').textContent = '';
@@ -1389,7 +1444,7 @@ async function startUpload() {
 ══════════════════════════════════════ */
 async function listGithubDir(path) {
   const data = await githubAPI(`contents/${path}`);
-  if (data.status === 404 || !Array.isArray(data)) return [];
+  if (!Array.isArray(data)) return [];
   let files = [];
   for (const item of data) {
     if (item.type === 'file' && /\.(jpe?g|png|gif|webp|bmp|svg)$/i.test(item.name)) {
@@ -1407,6 +1462,14 @@ async function listGithubDir(path) {
   return files;
 }
 
+function renderUploadCard() {
+  return `
+    <div class="upload-card" id="uploadZone">
+      <input type="file" id="fileInput" accept="image/*" multiple />
+      <div class="upload-card-icon" aria-hidden="true">+</div>
+    </div>`;
+}
+
 async function loadImages() {
   const grid  = document.getElementById('imagesGrid');
   const count = document.getElementById('imagesCount');
@@ -1415,19 +1478,22 @@ async function loadImages() {
 
   try {
     githubImageFiles = await listGithubDir(CONFIG.github_images_base);
-    count.textContent = `共 ${githubImageFiles.length} 张图片`;
+    count.textContent = githubImageFiles.length
+      ? `共 ${githubImageFiles.length} 张图片`
+      : '暂无图片，点击 + 添加';
 
-    if (!githubImageFiles.length) {
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🖼️</div><p>暂无图片，上传第一张吧！</p></div>`;
-      return;
-    }
-
-    grid.innerHTML = githubImageFiles.map((img, i) =>
-      renderImageCard(img, i)
-    ).join('');
+    const imagesHtml = githubImageFiles.map((img, i) => renderImageCard(img, i)).join('');
+    grid.innerHTML = imagesHtml + renderUploadCard();
+    bindUploadCard();
 
   } catch(e) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">⚠️</div><p>图片加载失败：${escapeHtml(String(e))}</p></div>`;
+    grid.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1">
+        <div class="empty-icon">⚠️</div>
+        <p>图片加载失败：${escapeHtml(String(e))}</p>
+      </div>
+      ${renderUploadCard()}`;
+    bindUploadCard();
     count.textContent = '加载失败';
   }
 }
@@ -1471,10 +1537,13 @@ function closeConfirm() {
 }
 
 async function doDelete() {
-  if (pendingDeleteIdx < 0) return;
+  const idx = pendingDeleteIdx;
+  if (idx < 0) return;
   closeConfirm();
 
-  const img = githubImageFiles[pendingDeleteIdx];
+  const img = githubImageFiles[idx];
+  if (!img) { toast('图片不存在，请刷新后重试', 'error'); return; }
+
   try {
     await githubAPI(`contents/${img.path}`, 'DELETE', {
       message: `删除图片：${img.name}`,
@@ -1482,17 +1551,10 @@ async function doDelete() {
       branch : CONFIG.github_branch,
     });
     toast(`已删除：${img.name}`, 'success');
-    // 从 DOM 移除该卡片
-    const card = document.getElementById(`imgcard-${pendingDeleteIdx}`);
-    if (card) {
-      card.style.animation = 'none';
-      card.style.transition = 'opacity .3s,transform .3s';
-      card.style.opacity = '0';
-      card.style.transform = 'scale(.8)';
-      setTimeout(() => { card.remove(); loadImages(); }, 350);
-    }
+    githubImageFiles.splice(idx, 1);
+    await loadImages();
   } catch(e) {
-    toast('删除失败：' + e, 'error');
+    toast('删除失败：' + (e.message || e), 'error');
   }
 }
 
@@ -1514,30 +1576,29 @@ function closeLightbox(e) {
   document.body.style.overflow = '';
 }
 
-/* ══════════════════════════════════════
-   ⑥ 拖拽上传
-══════════════════════════════════════ */
-function initDragDrop() {
+function bindUploadCard() {
   const zone = document.getElementById('uploadZone');
-  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
-  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-  zone.addEventListener('drop', e => {
+  const input = document.getElementById('fileInput');
+  if (!zone || !input) return;
+
+  input.onchange = handleFileSelect;
+
+  zone.ondragover = e => { e.preventDefault(); zone.classList.add('drag-over'); };
+  zone.ondragleave = () => zone.classList.remove('drag-over');
+  zone.ondrop = e => {
     e.preventDefault();
     zone.classList.remove('drag-over');
     const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
     if (!files.length) { toast('请拖入图片文件', 'error'); return; }
     selectedFiles = files.map(f => ({ file: f, name: f.name }));
     showUploadForm();
-  });
+  };
 }
 
 /* ══════════════════════════════════════
    ⑦ 初始化
 ══════════════════════════════════════ */
-document.getElementById('fileInput').addEventListener('change', handleFileSelect);
-
 async function init() {
-  initDragDrop();
   await refreshQuestions();
   await loadImages();
 }
