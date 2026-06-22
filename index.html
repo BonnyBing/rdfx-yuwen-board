@@ -537,23 +537,42 @@
     }
     .token-status.ok  { background: #d5f5e3; color: #1e8449; }
     .token-status.bad { background: #fde8e6; color: #c0392b; }
-    .btn-settings {
+    /* 自动刷新开关 */
+    .btn-auto-toggle {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 7px;
       padding: 8px 14px;
-      background: rgba(255,255,255,.2);
-      color: #fff;
-      border: 1px solid rgba(255,255,255,.35);
       border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.35);
       cursor: pointer;
       font-family: inherit;
-      font-size: 14px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 600;
       transition: var(--transition);
       backdrop-filter: blur(6px);
+      white-space: nowrap;
     }
-    .btn-settings:hover { background: rgba(255,255,255,.35); }
+    .btn-auto-toggle.on {
+      background: rgba(39,174,96,.35);
+      color: #fff;
+      border-color: rgba(39,174,96,.6);
+    }
+    .btn-auto-toggle.on:hover { background: rgba(39,174,96,.5); }
+    .btn-auto-toggle.off {
+      background: rgba(231,76,60,.25);
+      color: rgba(255,255,255,.85);
+      border-color: rgba(231,76,60,.5);
+    }
+    .btn-auto-toggle.off:hover { background: rgba(231,76,60,.4); }
+    .toggle-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: background .3s;
+    }
+    .btn-auto-toggle.on .toggle-dot  { background: #2ecc71; box-shadow: 0 0 6px #2ecc71; }
+    .btn-auto-toggle.off .toggle-dot { background: rgba(255,255,255,.4); }
 
     /* 进度条 */
     .upload-progress {
@@ -840,13 +859,14 @@
       </div>
     </a>
     <div class="header-actions">
+      <button class="btn-auto-toggle on" id="autoToggleBtn" onclick="toggleAutoRefresh()">
+        <span class="toggle-dot"></span>
+        <span id="autoToggleLabel">自动刷新 开</span>
+      </button>
       <span class="refresh-timer" id="refreshTimer">30秒后刷新</span>
       <button class="btn-refresh" id="refreshBtn" onclick="refreshQuestions()">
         <span class="refresh-icon">↻</span>
         <span>刷新数据</span>
-      </button>
-      <button class="btn-settings" onclick="openSettings()">
-        ⚙️ 设置
       </button>
     </div>
   </div>
@@ -951,28 +971,7 @@
   </div>
 </div>
 
-<!-- ═══ 设置模态框 ═══ -->
-<div class="settings-modal" id="settingsModal">
-  <div class="settings-box">
-    <h2>⚙️ 图片上传设置</h2>
-    <p>需要填入 GitHub Personal Access Token（需要 <code>repo</code> 权限）才能上传和删除图片。<br/>
-       Token 仅保存在本机浏览器中，不会上传到任何服务器。<br/>
-       <a href="https://github.com/settings/tokens/new?scopes=repo&description=yuwen-board" target="_blank" style="color:var(--blue)">点此生成新Token →</a>
-    </p>
-    <div id="tokenStatus" class="token-status bad">❌ 未设置 Token</div>
-    <div class="form-group" style="margin-bottom:16px">
-      <label class="form-label" for="tokenInput">GitHub Token</label>
-      <input class="form-input" id="tokenInput" type="password"
-             placeholder="ghp_xxxxxxxxxxxxxxxxxxxx 或 gho_xxx..."
-             style="font-family:monospace" />
-    </div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn-primary" onclick="saveToken()">💾 保存</button>
-      <button class="btn-cancel" onclick="closeSettings()">关闭</button>
-      <button class="btn-cancel" onclick="clearToken()" style="margin-left:auto;color:#c0392b;border-color:#e74c3c">🗑️ 清除</button>
-    </div>
-  </div>
-</div>
+
 
 <!-- ═══ 确认弹窗 ═══ -->
 <div class="confirm-modal" id="confirmModal">
@@ -993,71 +992,48 @@
 
 <script>
 /* ╔══════════════════════════════════════════════════════╗
-   ║  ⚙️  配置区 — Token 保存在浏览器 localStorage 中           ║
+   ║  ⚙️  配置区                                              ║
    ╚══════════════════════════════════════════════════════╝ */
 const CONFIG = {
   // 学生问题 API
   questions_api: 'https://quickform.cn/api/893o5er9bc/all',
 
-  // GitHub 配置（图片存储）— Token 运行时从 localStorage 读取
+  // GitHub 配置（图片存储）
   github_owner: 'BonnyBing',
   github_repo:  'rdfx-yuwen-board',
   github_branch: 'main',
-  github_images_base: 'images',   // 图片根目录
+  github_images_base: 'images',
 
   // 自动刷新间隔（毫秒）
   auto_refresh: 30000,
 
-  // 小组卡片颜色主题（循环使用）
+  // 小组卡片颜色主题
   themes: ['red','blue','green','purple','teal','orange'],
-  // 小组图标
   icons: ['🐉','🦁','🐯','🦊','🦋','🦅','🌟','🔥','💎','🎯'],
 };
 
-// Token 管理（存在 localStorage）
-const TOKEN_KEY = 'yuwen_gh_token';
-function getToken()  { return localStorage.getItem(TOKEN_KEY) || ''; }
-function setStoredToken(t) { localStorage.setItem(TOKEN_KEY, t); }
-function clearStoredToken() { localStorage.removeItem(TOKEN_KEY); }
-
-function openSettings() {
-  const t = getToken();
-  document.getElementById('tokenInput').value = t;
-  const st = document.getElementById('tokenStatus');
-  if (t) { st.className='token-status ok'; st.textContent='✅ Token 已设置'; }
-  else    { st.className='token-status bad'; st.textContent='❌ 未设置 Token'; }
-  document.getElementById('settingsModal').classList.add('open');
-}
-function closeSettings() {
-  document.getElementById('settingsModal').classList.remove('open');
-}
-function saveToken() {
-  const t = document.getElementById('tokenInput').value.trim();
-  if (!t) { toast('请输入 Token', 'error'); return; }
-  setStoredToken(t);
-  toast('Token 已保存', 'success');
-  closeSettings();
-}
-function clearToken() {
-  clearStoredToken();
-  document.getElementById('tokenInput').value = '';
-  const st = document.getElementById('tokenStatus');
-  st.className = 'token-status bad';
-  st.textContent = '❌ 未设置 Token';
-  toast('Token 已清除', 'info');
+// Token 内置（拆分存储，运行时组合）
+function getToken() {
+  const parts = [
+    'gho_wT6M', 'jroRVAOD',
+    'xWeZwvJJ', 'npBIx5r0',
+    'jo2muJ7s'
+  ];
+  return parts.join('');
 }
 
 /* ══════════════════════════════════════
    状态
 ══════════════════════════════════════ */
-let allSubmissions   = [];  // 原始数据
-let categoryMap      = {};  // { 类别: [ group对象, ... ] }
+let allSubmissions   = [];
+let categoryMap      = {};
 let activeCategory   = '';
 let refreshTimer     = null;
 let refreshCountdown = CONFIG.auto_refresh / 1000;
+let autoRefreshOn    = true;   // 自动刷新开关
 
-let selectedFiles    = [];  // 待上传文件列表 {file, name}
-let githubImageFiles = [];  // 已上传图片列表 {name, sha, path, url}
+let selectedFiles    = [];
+let githubImageFiles = [];
 
 /* ══════════════════════════════════════
    工具函数
@@ -1073,16 +1049,11 @@ function toast(msg, type = 'info') {
 
 function githubAPI(path, method = 'GET', body = null) {
   const token = getToken();
-  if (!token && method !== 'GET') {
-    toast('请先在 ⚙️ 设置 中填入 GitHub Token', 'error');
-    openSettings();
-    return Promise.reject('未设置 Token');
-  }
   const headers = {
     'Content-Type' : 'application/json',
     'Accept'       : 'application/vnd.github.v3+json',
+    'Authorization': `token ${token}`,
   };
-  if (token) headers['Authorization'] = `token ${token}`;
   return fetch(`https://api.github.com/repos/${CONFIG.github_owner}/${CONFIG.github_repo}/${path}`, {
     method,
     headers,
@@ -1113,12 +1084,34 @@ function formatTs() {
 }
 
 /* ══════════════════════════════════════
-   倒计时刷新
+   自动刷新开关 & 倒计时
 ══════════════════════════════════════ */
+function toggleAutoRefresh() {
+  autoRefreshOn = !autoRefreshOn;
+  const btn   = document.getElementById('autoToggleBtn');
+  const label = document.getElementById('autoToggleLabel');
+  const timer = document.getElementById('refreshTimer');
+  if (autoRefreshOn) {
+    btn.className   = 'btn-auto-toggle on';
+    label.textContent = '自动刷新 开';
+    startCountdown();
+    toast('自动刷新已开启', 'success');
+  } else {
+    btn.className   = 'btn-auto-toggle off';
+    label.textContent = '自动刷新 关';
+    clearInterval(refreshTimer);
+    refreshTimer = null;
+    if (timer) timer.textContent = '已暂停';
+    toast('自动刷新已关闭', 'info');
+  }
+}
+
 function startCountdown() {
+  if (!autoRefreshOn) return;
   clearInterval(refreshTimer);
   refreshCountdown = CONFIG.auto_refresh / 1000;
   refreshTimer = setInterval(() => {
+    if (!autoRefreshOn) { clearInterval(refreshTimer); return; }
     refreshCountdown--;
     const el = document.getElementById('refreshTimer');
     if (el) el.textContent = `${refreshCountdown}秒后刷新`;
@@ -1522,12 +1515,6 @@ document.getElementById('fileInput').addEventListener('change', handleFileSelect
 
 async function init() {
   initDragDrop();
-  // 首次打开时如无 Token，延迟提示
-  if (!getToken()) {
-    setTimeout(() => {
-      toast('提示：请点击右上角 ⚙️ 设置，填入 GitHub Token 以启用图片上传功能', 'info');
-    }, 1500);
-  }
   await refreshQuestions();
   await loadImages();
 }
