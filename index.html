@@ -1353,8 +1353,6 @@ function renderAllCategories(map) {
     return;
   }
 
-  const groupColorMap = buildGroupColorMap(map);
-
   container.innerHTML = `<div class="categories-grid">${cats.map((cat, ci) => {
     const groups    = map[cat];
     const totalQ    = groups.reduce((s, g) => s + g.questions.length, 0);
