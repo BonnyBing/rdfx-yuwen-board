@@ -201,15 +201,25 @@
     }
 
     .category-section {
-      background: #fff;
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(0,0,0,.06);
+      border: 1px solid rgba(0,0,0,.08);
       overflow: hidden;
       display: flex;
       flex-direction: column;
       min-height: 0;
+      color: #fff;
     }
+
+    /* 整块区域与标题同色 */
+    .cat-theme-0 { background: linear-gradient(160deg,#e74c3c 0%,#9b2335 100%); }
+    .cat-theme-1 { background: linear-gradient(160deg,#2471a3 0%,#1a4f72 100%); }
+    .cat-theme-2 { background: linear-gradient(160deg,#1e8449 0%,#145a32 100%); }
+    .cat-theme-3 { background: linear-gradient(160deg,#7d3c98 0%,#512e5f 100%); }
+    .cat-theme-4 { background: linear-gradient(160deg,#ca6f1e 0%,#935116 100%); }
+    .cat-theme-5 { background: linear-gradient(160deg,#148f77 0%,#0e6655 100%); }
+    .cat-theme-6 { background: linear-gradient(160deg,#2e86c1 0%,#1a5276 100%); }
+    .cat-theme-7 { background: linear-gradient(160deg,#d4ac0d 0%,#9a7d0a 100%); }
 
     .category-banner {
       display: flex;
@@ -222,22 +232,17 @@
       position: relative;
       overflow: hidden;
       flex-shrink: 0;
+      background: transparent;
     }
 
     .category-body {
-      padding: 14px;
-      background: var(--paper);
+      padding: 0 14px 14px;
+      background: transparent;
       flex: 1;
     }
-    /* 各类别配色（循环） */
-    .cat-color-0 { background: linear-gradient(135deg,#e74c3c 0%,#9b2335 100%); }
-    .cat-color-1 { background: linear-gradient(135deg,#2471a3 0%,#1a4f72 100%); }
-    .cat-color-2 { background: linear-gradient(135deg,#1e8449 0%,#145a32 100%); }
-    .cat-color-3 { background: linear-gradient(135deg,#7d3c98 0%,#512e5f 100%); }
-    .cat-color-4 { background: linear-gradient(135deg,#ca6f1e 0%,#935116 100%); }
-    .cat-color-5 { background: linear-gradient(135deg,#148f77 0%,#0e6655 100%); }
-    .cat-color-6 { background: linear-gradient(135deg,#2e86c1 0%,#1a5276 100%); }
-    .cat-color-7 { background: linear-gradient(135deg,#d4ac0d 0%,#9a7d0a 100%); }
+    /* banner 装饰圆保留，背景由 cat-theme 提供 */
+    .cat-color-0, .cat-color-1, .cat-color-2, .cat-color-3,
+    .cat-color-4, .cat-color-5, .cat-color-6, .cat-color-7 { background: transparent; }
 
     .category-banner::after {
       content: '';
@@ -289,32 +294,36 @@
     }
 
     /* ═══════════════════════════════════════
-       小组问题列表（扁平化，不再嵌套大卡片）
+       小组问题列表（左右两列，组色全局一致）
     ═══════════════════════════════════════ */
     .groups-list {
-      display: flex;
-      flex-direction: column;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
 
     .group-block {
       background: #fff;
       border-radius: var(--radius);
-      border: 1px solid rgba(0,0,0,.07);
+      border: none;
       overflow: hidden;
       animation: fadeInUp .35s ease both;
+      box-shadow: 0 4px 16px rgba(0,0,0,.15);
+    }
+
+    .group-block:only-child {
+      grid-column: 1 / -1;
     }
 
     .group-label {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 9px 12px;
-      background: var(--paper-2);
-      border-bottom: 1px solid var(--paper-3);
+      padding: 10px 12px;
+      border-bottom: none;
       font-size: 14px;
       font-weight: 700;
-      color: var(--ink-2);
+      color: #fff;
     }
 
     .group-label .group-avatar {
@@ -331,8 +340,8 @@
     .group-label .question-badge {
       font-size: 11px;
       font-weight: 600;
-      color: var(--ink-3);
-      background: var(--paper-3);
+      color: #fff;
+      background: rgba(255,255,255,.25);
       border-radius: 50px;
       padding: 2px 8px;
       flex-shrink: 0;
@@ -340,6 +349,7 @@
 
     .group-questions {
       padding: 4px 0;
+      background: #fff;
     }
 
     .question-item {
@@ -370,33 +380,27 @@
       flex: 1;
     }
 
-    /* 类别主题色：小组头像 & 题号 */
-    .cat-accent-0 .group-avatar { background:#fde8e6; }
-    .cat-accent-1 .group-avatar { background:#d6eaf8; }
-    .cat-accent-2 .group-avatar { background:#d5f5e3; }
-    .cat-accent-3 .group-avatar { background:#f5eef8; }
-    .cat-accent-4 .group-avatar { background:#fef5e7; }
-    .cat-accent-5 .group-avatar { background:#d1f2eb; }
-    .cat-accent-6 .group-avatar { background:#d4e6f1; }
-    .cat-accent-7 .group-avatar { background:#fcf3cf; }
+    /* 小组主题色：跨类别完全一致（实色标题栏） */
+    .group-theme-0 .group-label { background: linear-gradient(135deg,#e74c3c,#c0392b); }
+    .group-theme-1 .group-label { background: linear-gradient(135deg,#5dade2,#2471a3); }
+    .group-theme-2 .group-label { background: linear-gradient(135deg,#52be80,#1e8449); }
+    .group-theme-3 .group-label { background: linear-gradient(135deg,#af7ac5,#7d3c98); }
+    .group-theme-4 .group-label { background: linear-gradient(135deg,#f0b27a,#ca6f1e); }
+    .group-theme-5 .group-label { background: linear-gradient(135deg,#48c9b0,#148f77); }
 
-    .cat-accent-0 .question-num { background:#fde8e6; color:#c0392b; }
-    .cat-accent-1 .question-num { background:#d6eaf8; color:#2471a3; }
-    .cat-accent-2 .question-num { background:#d5f5e3; color:#1e8449; }
-    .cat-accent-3 .question-num { background:#f5eef8; color:#7d3c98; }
-    .cat-accent-4 .question-num { background:#fef5e7; color:#ca6f1e; }
-    .cat-accent-5 .question-num { background:#d1f2eb; color:#148f77; }
-    .cat-accent-6 .question-num { background:#d4e6f1; color:#1a5276; }
-    .cat-accent-7 .question-num { background:#fcf3cf; color:#9a7d0a; }
+    .group-theme-0 .group-avatar { background: rgba(255,255,255,.25); }
+    .group-theme-1 .group-avatar { background: rgba(255,255,255,.25); }
+    .group-theme-2 .group-avatar { background: rgba(255,255,255,.25); }
+    .group-theme-3 .group-avatar { background: rgba(255,255,255,.25); }
+    .group-theme-4 .group-avatar { background: rgba(255,255,255,.25); }
+    .group-theme-5 .group-avatar { background: rgba(255,255,255,.25); }
 
-    .cat-accent-0 .group-label { border-left: 4px solid #c0392b; }
-    .cat-accent-1 .group-label { border-left: 4px solid #2471a3; }
-    .cat-accent-2 .group-label { border-left: 4px solid #1e8449; }
-    .cat-accent-3 .group-label { border-left: 4px solid #7d3c98; }
-    .cat-accent-4 .group-label { border-left: 4px solid #ca6f1e; }
-    .cat-accent-5 .group-label { border-left: 4px solid #148f77; }
-    .cat-accent-6 .group-label { border-left: 4px solid #1a5276; }
-    .cat-accent-7 .group-label { border-left: 4px solid #9a7d0a; }
+    .group-theme-0 .question-num { background:#fde8e6; color:#c0392b; }
+    .group-theme-1 .question-num { background:#d6eaf8; color:#2471a3; }
+    .group-theme-2 .question-num { background:#d5f5e3; color:#1e8449; }
+    .group-theme-3 .question-num { background:#f5eef8; color:#7d3c98; }
+    .group-theme-4 .question-num { background:#fef5e7; color:#ca6f1e; }
+    .group-theme-5 .question-num { background:#d1f2eb; color:#148f77; }
 
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(12px); }
@@ -937,6 +941,7 @@
     ═══════════════════════════════════════ */
     @media (max-width: 900px) {
       .categories-grid { grid-template-columns: 1fr; }
+      .groups-list { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -1147,7 +1152,7 @@ function githubAPI(path, method = 'GET', body = null) {
   const headers = {
     'Content-Type' : 'application/json',
     'Accept'       : 'application/vnd.github.v3+json',
-    'Authorization': `token ${token}`,
+    'Authorization': `Bearer ${token}`,
   };
   const apiPath = path.startsWith('contents/')
     ? 'contents/' + path.slice('contents/'.length).split('/').map(encodeURIComponent).join('/')
@@ -1157,13 +1162,21 @@ function githubAPI(path, method = 'GET', body = null) {
     headers,
     body: body ? JSON.stringify(body) : null,
   }).then(async r => {
+    const d = await r.json().catch(() => ({}));
     if (!r.ok) {
-      const d = await r.json().catch(() => ({}));
-      if (r.status === 404) return d;
-      return Promise.reject(d.message || r.statusText);
+      if (r.status === 404 && method === 'GET') return d;
+      const msg = d.message || r.statusText;
+      const detail = d.errors?.map(e => e.message).filter(Boolean).join('；');
+      return Promise.reject(detail ? `${msg}（${detail}）` : msg);
     }
-    return r.status === 204 ? null : r.json();
+    return r.status === 204 ? null : d;
   });
+}
+
+function ghErrorMessage(e) {
+  if (!e) return '未知错误';
+  if (typeof e === 'string') return e;
+  return e.message || String(e);
 }
 
 function fileToBase64(file) {
@@ -1277,6 +1290,21 @@ function buildCategoryMap(submissions) {
 // 类别图标
 const CAT_ICONS = ['📚','🔬','🎨','🌍','🎵','🏛️','🌿','💡','🔭','✏️'];
 
+function normalizeGroupName(name) {
+  return String(name || '未知小组').trim().replace(/\s+/g, '');
+}
+
+function buildGroupColorMap(map) {
+  const names = new Set();
+  Object.values(map).forEach(groups =>
+    groups.forEach(g => names.add(normalizeGroupName(g.group_name)))
+  );
+  const sorted = [...names].sort((a, b) => a.localeCompare(b, 'zh-CN'));
+  const colorMap = {};
+  sorted.forEach((name, i) => { colorMap[name] = i % 6; });
+  return colorMap;
+}
+
 function renderAllCategories(map) {
   const container = document.getElementById('questionsContent');
   const cats = Object.keys(map);
@@ -1286,17 +1314,18 @@ function renderAllCategories(map) {
     return;
   }
 
+  const groupColorMap = buildGroupColorMap(map);
+
   container.innerHTML = `<div class="categories-grid">${cats.map((cat, ci) => {
     const groups    = map[cat];
     const totalQ    = groups.reduce((s, g) => s + g.questions.length, 0);
-    const colorCls  = `cat-color-${ci % 8}`;
-    const accentCls = `cat-accent-${ci % 8}`;
+    const themeCls  = `cat-theme-${ci % 8}`;
     const catIcon   = CAT_ICONS[ci % CAT_ICONS.length];
-    const groupsHtml = groups.map((g, gi) => renderGroupBlock(g, gi, ci)).join('');
+    const groupsHtml = groups.map((g, gi) => renderGroupBlock(g, gi, groupColorMap)).join('');
 
     return `
-      <div class="category-section ${accentCls}">
-        <div class="category-banner ${colorCls}">
+      <div class="category-section ${themeCls}">
+        <div class="category-banner">
           <div class="cat-icon">${catIcon}</div>
           <div class="cat-info">
             <div class="cat-name">${escapeHtml(cat)}</div>
@@ -1311,23 +1340,25 @@ function renderAllCategories(map) {
   }).join('')}</div>`;
 }
 
-function renderGroupBlock(group, i, catIdx) {
-  const icon  = CONFIG.icons[i % CONFIG.icons.length];
-  const qs    = group.questions.map((q, qi) =>
+function renderGroupBlock(group, i, groupColorMap) {
+  const key      = normalizeGroupName(group.group_name);
+  const themeIdx = groupColorMap[key] ?? 0;
+  const icon     = CONFIG.icons[themeIdx % CONFIG.icons.length];
+  const qs = group.questions.map((q, qi) =>
     `<div class="question-item">
        <span class="question-num">${qi + 1}</span>
        <span class="question-text">${escapeHtml(q.question)}</span>
      </div>`
   ).join('');
   return `
-    <div class="group-block">
+    <div class="group-block group-theme-${themeIdx}">
       <div class="group-label">
         <span class="group-avatar">${icon}</span>
         <span class="group-name">${escapeHtml(group.group_name)}</span>
         <span class="question-badge">${group.questions.length} 问</span>
       </div>
       <div class="group-questions">
-        ${qs || '<p style="color:var(--ink-3);font-size:13px;padding:10px 12px;">暂无问题</p>'}
+        ${qs || '<p style="color:rgba(255,255,255,.7);font-size:13px;padding:10px 12px;">暂无问题</p>'}
       </div>
     </div>`;
 }
@@ -1522,17 +1553,15 @@ async function loadImages() {
 }
 
 function renderImageCard(img, i) {
-  // 使用 jsDelivr CDN 加速（可选）或直接用 raw GitHub URL
   const src = img.url;
-  // 显示名称（去掉时间戳前缀美化）
-  const displayName = img.name.replace(/^\d{8}_\d{6}_\d+\./, '').replace(/\.\w+$/, '') || img.name;
   return `
     <div class="image-card" onclick="openLightbox(${i})" id="imgcard-${i}">
       <img src="${escapeHtml(src)}" alt="${escapeHtml(img.name)}" loading="lazy" />
       <div class="image-card-overlay">
         <div class="image-name">${escapeHtml(img.path.replace(CONFIG.github_images_base+'/', ''))}</div>
         <div class="image-actions">
-          <button class="btn-delete-img" onclick="event.stopPropagation();confirmDelete(${i})">
+          <button class="btn-delete-img" data-path="${escapeHtml(img.path)}"
+                  onclick="event.stopPropagation();confirmDelete(this.dataset.path)">
             🗑️ 删除
           </button>
         </div>
@@ -1543,41 +1572,47 @@ function renderImageCard(img, i) {
 /* ══════════════════════════════════════
    ④ 删除图片
 ══════════════════════════════════════ */
-let pendingDeleteIdx = -1;
+let pendingDeletePath = '';
 
-function confirmDelete(i) {
-  pendingDeleteIdx = i;
-  const img = githubImageFiles[i];
+function confirmDelete(path) {
+  pendingDeletePath = path;
+  const img = githubImageFiles.find(f => f.path === path);
   document.getElementById('confirmDesc').textContent =
-    `确定要删除「${img.path.replace(CONFIG.github_images_base+'/','')}」吗？此操作不可撤销。`;
+    `确定要删除「${path.replace(CONFIG.github_images_base+'/','')}」吗？此操作不可撤销。`;
   document.getElementById('confirmModal').classList.add('open');
   document.getElementById('confirmYesBtn').onclick = doDelete;
 }
 
 function closeConfirm() {
-  pendingDeleteIdx = -1;
+  pendingDeletePath = '';
   document.getElementById('confirmModal').classList.remove('open');
 }
 
 async function doDelete() {
-  const idx = pendingDeleteIdx;
-  if (idx < 0) return;
+  const path = pendingDeletePath;
+  if (!path) return;
   closeConfirm();
 
-  const img = githubImageFiles[idx];
-  if (!img) { toast('图片不存在，请刷新后重试', 'error'); return; }
+  const img = githubImageFiles.find(f => f.path === path);
+  const btn = document.getElementById('confirmYesBtn');
+  if (btn) btn.disabled = true;
 
   try {
-    await githubAPI(`contents/${img.path}`, 'DELETE', {
-      message: `删除图片：${img.name}`,
-      sha    : img.sha,
+    const meta = await githubAPI(`contents/${path}`);
+    if (!meta || !meta.sha) throw new Error('找不到该图片，可能已被删除');
+
+    await githubAPI(`contents/${path}`, 'DELETE', {
+      message: `删除图片：${img?.name || path.split('/').pop()}`,
+      sha    : meta.sha,
       branch : CONFIG.github_branch,
     });
-    toast(`已删除：${img.name}`, 'success');
-    githubImageFiles.splice(idx, 1);
+    toast(`已删除：${img?.name || path.split('/').pop()}`, 'success');
     await loadImages();
   } catch(e) {
-    toast('删除失败：' + (e.message || e), 'error');
+    toast('删除失败：' + ghErrorMessage(e), 'error');
+    await loadImages();
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
