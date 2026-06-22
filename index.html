@@ -191,32 +191,43 @@
     }
 
     /* ═══════════════════════════════════════
-       类别区块（每个标题独立区域）
+       类别区块（两列并排，每个标题独立区域）
     ═══════════════════════════════════════ */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
     .category-section {
-      margin-bottom: 40px;
       background: #fff;
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-sm);
       border: 1px solid rgba(0,0,0,.06);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
 
     .category-banner {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 16px 22px;
+      gap: 12px;
+      padding: 14px 18px;
       border-radius: 0;
       margin-bottom: 0;
       color: #fff;
       position: relative;
       overflow: hidden;
+      flex-shrink: 0;
     }
 
     .category-body {
-      padding: 20px 22px 22px;
+      padding: 14px;
       background: var(--paper);
+      flex: 1;
     }
     /* 各类别配色（循环） */
     .cat-color-0 { background: linear-gradient(135deg,#e74c3c 0%,#9b2335 100%); }
@@ -246,24 +257,24 @@
     }
 
     .cat-icon {
-      width: 42px; height: 42px;
+      width: 38px; height: 38px;
       background: rgba(255,255,255,.2);
       border-radius: 10px;
       display: grid;
       place-items: center;
-      font-size: 20px;
+      font-size: 18px;
       flex-shrink: 0;
       backdrop-filter: blur(4px);
     }
-    .cat-info { flex: 1; }
+    .cat-info { flex: 1; min-width: 0; }
     .cat-name {
-      font-size: 20px;
+      font-size: 17px;
       font-weight: 800;
-      line-height: 1.2;
+      line-height: 1.3;
       letter-spacing: .02em;
     }
     .cat-meta {
-      font-size: 13px;
+      font-size: 12px;
       opacity: .85;
       margin-top: 2px;
     }
@@ -271,112 +282,126 @@
       background: rgba(255,255,255,.25);
       backdrop-filter: blur(4px);
       border-radius: 50px;
-      padding: 5px 14px;
-      font-size: 13px;
+      padding: 4px 12px;
+      font-size: 12px;
       font-weight: 700;
       flex-shrink: 0;
     }
 
     /* ═══════════════════════════════════════
-       小组问题卡片
+       小组问题列表（扁平化，不再嵌套大卡片）
     ═══════════════════════════════════════ */
-    .groups-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
+    .groups-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
-    .group-card {
+    .group-block {
       background: #fff;
       border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
+      border: 1px solid rgba(0,0,0,.07);
       overflow: hidden;
-      transition: var(--transition);
-      border: 1px solid rgba(0,0,0,.06);
-      animation: fadeInUp .4s ease both;
-    }
-    .group-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow);
-    }
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
+      animation: fadeInUp .35s ease both;
     }
 
-    .group-card-header {
-      padding: 14px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: #fff;
-    }
-    .group-name {
-      font-size: 16px;
-      font-weight: 700;
+    .group-label {
       display: flex;
       align-items: center;
       gap: 8px;
-    }
-    .group-avatar {
-      width: 32px; height: 32px;
-      background: rgba(255,255,255,.25);
-      border-radius: 8px;
-      display: grid;
-      place-items: center;
-      font-size: 16px;
-    }
-    .question-badge {
-      background: rgba(255,255,255,.25);
-      border-radius: 50px;
-      padding: 3px 10px;
-      font-size: 12px;
-      font-weight: 600;
+      padding: 9px 12px;
+      background: var(--paper-2);
+      border-bottom: 1px solid var(--paper-3);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink-2);
     }
 
-    .group-card-body { padding: 16px 18px; }
+    .group-label .group-avatar {
+      width: 26px; height: 26px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .group-label .group-name { flex: 1; min-width: 0; }
+
+    .group-label .question-badge {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ink-3);
+      background: var(--paper-3);
+      border-radius: 50px;
+      padding: 2px 8px;
+      flex-shrink: 0;
+    }
+
+    .group-questions {
+      padding: 4px 0;
+    }
 
     .question-item {
       display: flex;
       gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px dashed var(--paper-3);
+      padding: 10px 12px;
       align-items: flex-start;
     }
-    .question-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .question-item + .question-item {
+      border-top: 1px dashed var(--paper-3);
+    }
 
     .question-num {
-      width: 26px; height: 26px;
-      border-radius: 50%;
+      width: 22px; height: 22px;
+      border-radius: 6px;
       display: grid;
       place-items: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       flex-shrink: 0;
-      margin-top: 1px;
+      margin-top: 2px;
     }
 
     .question-text {
-      font-size: 15px;
+      font-size: 14px;
       color: var(--ink-2);
-      line-height: 1.6;
+      line-height: 1.65;
       flex: 1;
     }
 
-    /* 小组卡片颜色主题 */
-    .theme-red    .group-card-header { background: linear-gradient(135deg,#e74c3c,#c0392b); }
-    .theme-blue   .group-card-header { background: linear-gradient(135deg,#5dade2,#2471a3); }
-    .theme-green  .group-card-header { background: linear-gradient(135deg,#52be80,#1e8449); }
-    .theme-purple .group-card-header { background: linear-gradient(135deg,#af7ac5,#7d3c98); }
-    .theme-teal   .group-card-header { background: linear-gradient(135deg,#48c9b0,#148f77); }
-    .theme-orange .group-card-header { background: linear-gradient(135deg,#f0b27a,#ca6f1e); }
+    /* 类别主题色：小组头像 & 题号 */
+    .cat-accent-0 .group-avatar { background:#fde8e6; }
+    .cat-accent-1 .group-avatar { background:#d6eaf8; }
+    .cat-accent-2 .group-avatar { background:#d5f5e3; }
+    .cat-accent-3 .group-avatar { background:#f5eef8; }
+    .cat-accent-4 .group-avatar { background:#fef5e7; }
+    .cat-accent-5 .group-avatar { background:#d1f2eb; }
+    .cat-accent-6 .group-avatar { background:#d4e6f1; }
+    .cat-accent-7 .group-avatar { background:#fcf3cf; }
 
-    .theme-red    .question-num { background:#fde8e6; color:#c0392b; }
-    .theme-blue   .question-num { background:#d6eaf8; color:#2471a3; }
-    .theme-green  .question-num { background:#d5f5e3; color:#1e8449; }
-    .theme-purple .question-num { background:#f5eef8; color:#7d3c98; }
-    .theme-teal   .question-num { background:#d1f2eb; color:#148f77; }
-    .theme-orange .question-num { background:#fef5e7; color:#ca6f1e; }
+    .cat-accent-0 .question-num { background:#fde8e6; color:#c0392b; }
+    .cat-accent-1 .question-num { background:#d6eaf8; color:#2471a3; }
+    .cat-accent-2 .question-num { background:#d5f5e3; color:#1e8449; }
+    .cat-accent-3 .question-num { background:#f5eef8; color:#7d3c98; }
+    .cat-accent-4 .question-num { background:#fef5e7; color:#ca6f1e; }
+    .cat-accent-5 .question-num { background:#d1f2eb; color:#148f77; }
+    .cat-accent-6 .question-num { background:#d4e6f1; color:#1a5276; }
+    .cat-accent-7 .question-num { background:#fcf3cf; color:#9a7d0a; }
+
+    .cat-accent-0 .group-label { border-left: 4px solid #c0392b; }
+    .cat-accent-1 .group-label { border-left: 4px solid #2471a3; }
+    .cat-accent-2 .group-label { border-left: 4px solid #1e8449; }
+    .cat-accent-3 .group-label { border-left: 4px solid #7d3c98; }
+    .cat-accent-4 .group-label { border-left: 4px solid #ca6f1e; }
+    .cat-accent-5 .group-label { border-left: 4px solid #148f77; }
+    .cat-accent-6 .group-label { border-left: 4px solid #1a5276; }
+    .cat-accent-7 .group-label { border-left: 4px solid #9a7d0a; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
 
     /* ═══════════════════════════════════════
        空状态 & 加载状态
@@ -911,7 +936,7 @@
        响应式
     ═══════════════════════════════════════ */
     @media (max-width: 900px) {
-      .groups-grid { grid-template-columns: 1fr; }
+      .categories-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 640px) {
@@ -920,7 +945,7 @@
       .logo-sub  { display: none; }
       .images-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
       .refresh-timer { display: none; }
-      .category-body { padding: 16px; }
+      .category-body { padding: 12px; }
     }
   </style>
 </head>
@@ -1261,15 +1286,16 @@ function renderAllCategories(map) {
     return;
   }
 
-  container.innerHTML = cats.map((cat, ci) => {
+  container.innerHTML = `<div class="categories-grid">${cats.map((cat, ci) => {
     const groups    = map[cat];
     const totalQ    = groups.reduce((s, g) => s + g.questions.length, 0);
     const colorCls  = `cat-color-${ci % 8}`;
+    const accentCls = `cat-accent-${ci % 8}`;
     const catIcon   = CAT_ICONS[ci % CAT_ICONS.length];
-    const groupsHtml = groups.map((g, gi) => renderGroupCard(g, gi, ci)).join('');
+    const groupsHtml = groups.map((g, gi) => renderGroupBlock(g, gi, ci)).join('');
 
     return `
-      <div class="category-section">
+      <div class="category-section ${accentCls}">
         <div class="category-banner ${colorCls}">
           <div class="cat-icon">${catIcon}</div>
           <div class="cat-info">
@@ -1279,14 +1305,13 @@ function renderAllCategories(map) {
           <span class="cat-total-badge">${totalQ} 问</span>
         </div>
         <div class="category-body">
-          <div class="groups-grid">${groupsHtml}</div>
+          <div class="groups-list">${groupsHtml}</div>
         </div>
       </div>`;
-  }).join('');
+  }).join('')}</div>`;
 }
 
-function renderGroupCard(group, i, catIdx) {
-  const theme = CONFIG.themes[(catIdx * 3 + i) % CONFIG.themes.length];
+function renderGroupBlock(group, i, catIdx) {
   const icon  = CONFIG.icons[i % CONFIG.icons.length];
   const qs    = group.questions.map((q, qi) =>
     `<div class="question-item">
@@ -1295,16 +1320,14 @@ function renderGroupCard(group, i, catIdx) {
      </div>`
   ).join('');
   return `
-    <div class="group-card theme-${theme}">
-      <div class="group-card-header">
-        <div class="group-name">
-          <div class="group-avatar">${icon}</div>
-          ${escapeHtml(group.group_name)}
-        </div>
-        <span class="question-badge">${group.questions.length} 个问题</span>
+    <div class="group-block">
+      <div class="group-label">
+        <span class="group-avatar">${icon}</span>
+        <span class="group-name">${escapeHtml(group.group_name)}</span>
+        <span class="question-badge">${group.questions.length} 问</span>
       </div>
-      <div class="group-card-body">
-        ${qs || '<p style="color:var(--ink-3);font-size:14px;">暂无问题</p>'}
+      <div class="group-questions">
+        ${qs || '<p style="color:var(--ink-3);font-size:13px;padding:10px 12px;">暂无问题</p>'}
       </div>
     </div>`;
 }
