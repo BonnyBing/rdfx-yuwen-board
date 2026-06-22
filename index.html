@@ -195,9 +195,9 @@
     ═══════════════════════════════════════ */
     .categories-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 20px;
-      align-items: start;
+      align-items: stretch;
     }
 
     .category-section {
@@ -207,6 +207,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      height: 100%;
       min-height: 0;
       color: #fff;
     }
@@ -239,6 +240,9 @@
       padding: 0 14px 14px;
       background: transparent;
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
     /* banner 装饰圆保留，背景由 cat-theme 提供 */
     .cat-color-0, .cat-color-1, .cat-color-2, .cat-color-3,
@@ -298,17 +302,24 @@
     ═══════════════════════════════════════ */
     .groups-list {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
+      flex: 1;
+      align-items: stretch;
+      align-content: start;
     }
 
     .group-block {
       background: #fff;
       border-radius: var(--radius);
       border: none;
-      overflow: hidden;
+      overflow: visible;
       animation: fadeInUp .35s ease both;
       box-shadow: 0 4px 16px rgba(0,0,0,.15);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
     }
 
     .group-block:only-child {
@@ -350,6 +361,7 @@
     .group-questions {
       padding: 4px 0;
       background: #fff;
+      flex: 1;
     }
 
     .question-item {
@@ -378,6 +390,10 @@
       color: var(--ink-2);
       line-height: 1.65;
       flex: 1;
+      min-width: 0;
+      white-space: normal;
+      word-break: break-word;
+      overflow-wrap: anywhere;
     }
 
     /* 小组主题色：跨类别完全一致（实色标题栏） */
@@ -1290,19 +1306,42 @@ function buildCategoryMap(submissions) {
 // 类别图标
 const CAT_ICONS = ['📚','🔬','🎨','🌍','🎵','🏛️','🌿','💡','🔭','✏️'];
 
+// 常见小组固定图标（跨类别始终一致）
+const GROUP_ICON_PRESETS = {
+  '第一组': '🐉', '第二组': '🦁', '第三组': '🐯',
+  '第四组': '🦊', '第五组': '🦋', '第六组': '🦅',
+  '第七组': '🌟', '第八组': '🔥', '第九组': '💎', '第十组': '🎯',
+};
+
 function normalizeGroupName(name) {
   return String(name || '未知小组').trim().replace(/\s+/g, '');
 }
 
-function buildGroupColorMap(map) {
-  const names = new Set();
-  Object.values(map).forEach(groups =>
-    groups.forEach(g => names.add(normalizeGroupName(g.group_name)))
-  );
-  const sorted = [...names].sort((a, b) => a.localeCompare(b, 'zh-CN'));
-  const colorMap = {};
-  sorted.forEach((name, i) => { colorMap[name] = i % 6; });
-  return colorMap;
+function hashGroupName(name) {
+  let h = 0;
+  for (let i = 0; i < name.length; i++) {
+    h = ((h << 5) - h) + name.charCodeAt(i);
+    h |= 0;
+  }
+  return Math.abs(h);
+}
+
+/** 按组名返回稳定的主题色与图标，不随类别或排序变化 */
+function getGroupStyle(groupName) {
+  const key = normalizeGroupName(groupName);
+  if (GROUP_ICON_PRESETS[key]) {
+    const icon = GROUP_ICON_PRESETS[key];
+    const iconIdx = CONFIG.icons.indexOf(icon);
+    return {
+      themeIdx: iconIdx >= 0 ? iconIdx % 6 : hashGroupName(key) % 6,
+      icon,
+    };
+  }
+  const h = hashGroupName(key);
+  return {
+    themeIdx: h % 6,
+    icon: CONFIG.icons[h % CONFIG.icons.length],
+  };
 }
 
 function renderAllCategories(map) {
@@ -1321,7 +1360,7 @@ function renderAllCategories(map) {
     const totalQ    = groups.reduce((s, g) => s + g.questions.length, 0);
     const themeCls  = `cat-theme-${ci % 8}`;
     const catIcon   = CAT_ICONS[ci % CAT_ICONS.length];
-    const groupsHtml = groups.map((g, gi) => renderGroupBlock(g, gi, groupColorMap)).join('');
+    const groupsHtml = groups.map((g) => renderGroupBlock(g)).join('');
 
     return `
       <div class="category-section ${themeCls}">
@@ -1338,12 +1377,54 @@ function renderAllCategories(map) {
         </div>
       </div>`;
   }).join('')}</div>`;
+
+  scheduleLayoutSync();
 }
 
-function renderGroupBlock(group, i, groupColorMap) {
-  const key      = normalizeGroupName(group.group_name);
-  const themeIdx = groupColorMap[key] ?? 0;
-  const icon     = CONFIG.icons[themeIdx % CONFIG.icons.length];
+function syncRowHeights(items, reset = true) {
+  if (reset) items.forEach(el => { el.style.minHeight = ''; });
+  if (window.innerWidth <= 900) return;
+  for (let i = 0; i < items.length; i += 2) {
+    const a = items[i];
+    const b = items[i + 1];
+    if (!b) break;
+    const h = Math.max(a.getBoundingClientRect().height, b.getBoundingClientRect().height);
+    a.style.minHeight = `${h}px`;
+    b.style.minHeight = `${h}px`;
+  }
+}
+
+function syncLayoutHeights() {
+  const grid = document.querySelector('.categories-grid');
+  if (!grid) return;
+
+  syncRowHeights([...grid.querySelectorAll('.category-section')]);
+
+  grid.querySelectorAll('.groups-list').forEach(list => {
+    syncRowHeights([...list.querySelectorAll('.group-block')]);
+  });
+}
+
+let layoutSyncTimer = null;
+function scheduleLayoutSync() {
+  clearTimeout(layoutSyncTimer);
+  layoutSyncTimer = setTimeout(() => {
+    syncLayoutHeights();
+    requestAnimationFrame(syncLayoutHeights);
+  }, 30);
+}
+
+if (!window._layoutSyncBound) {
+  window._layoutSyncBound = true;
+  window.addEventListener('resize', scheduleLayoutSync);
+  const questionsEl = document.getElementById('questionsContent');
+  if (questionsEl && typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(scheduleLayoutSync).observe(questionsEl);
+  }
+}
+
+function renderGroupBlock(group) {
+  const { themeIdx, icon } = getGroupStyle(group.group_name);
   const qs = group.questions.map((q, qi) =>
     `<div class="question-item">
        <span class="question-num">${qi + 1}</span>
