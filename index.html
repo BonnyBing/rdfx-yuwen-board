@@ -1017,10 +1017,10 @@
     </div>
   </div>
 
-  <!-- ★★★ 分隔 ★★★ -->
+  <!-- ★★★ 第二区块：老师图片墙（images_enabled 为 true 时显示）★★★ -->
+  <div id="imagesSection" hidden>
   <div class="section-gap"></div>
 
-  <!-- ★★★ 第二区块：老师图片墙 ★★★ -->
   <div class="section-header">
     <div class="section-icon blue">🖼️</div>
     <div>
@@ -1075,6 +1075,7 @@
       <p style="color:var(--ink-3)">加载图片中...</p>
     </div>
   </div>
+  </div>
 
 </main>
 
@@ -1116,6 +1117,9 @@ const CONFIG = {
 
   // 自动刷新间隔（毫秒）
   auto_refresh: 30000,
+
+  // 课堂图片墙（展示 + 上传），设为 true 可恢复
+  images_enabled: false,
 
   // 小组卡片颜色主题
   themes: ['red','blue','green','purple','teal','orange'],
@@ -1804,7 +1808,11 @@ function bindUploadCard() {
 ══════════════════════════════════════ */
 async function init() {
   await refreshQuestions();
-  await loadImages();
+  if (CONFIG.images_enabled) {
+    const section = document.getElementById('imagesSection');
+    if (section) section.hidden = false;
+    await loadImages();
+  }
 }
 
 init();
